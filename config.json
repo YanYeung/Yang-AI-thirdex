@@ -1,0 +1,25 @@
+{
+  "name": {
+    "zh-cn": "科大讯飞AI服务",
+    "en": "iFlytek AI Services"
+  },
+  "description": {
+    "zh-cn": "科大讯飞OCR与人脸识别服务，含图像处理与通信",
+    "en": "iFlytek OCR and Face services with image processing and HTTP"
+  },
+  "author": "YangAI",
+  "email": "support@yangai.local",
+  "license": "MIT",
+  "isBoard": false,
+  "id": "yang_ai_thirdex",
+  "platform": ["win", "mac", "web"],
+  "version": "0.1.0",
+  "asset": {
+    "arduinoC": {
+      "dir": "arduinoC/",
+      "version": "0.1.0",
+      "board": ["esp32s3bit"],
+      "main": "main.ts"
+    }
+  }
+}
