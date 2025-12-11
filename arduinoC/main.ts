@@ -1,4 +1,4 @@
-//% color="#AA278D" iconWidth=50 iconHeight=40
+//% color="#993300" iconWidth=50 iconHeight=40
 namespace XunfeiAI {
     //% block="设置科大讯飞文字识别 APPID[APPID] APIKey[APIKey] " blockType="command"
     //% APPID.shadow="string" APPID.defl="your_appid"
@@ -24,8 +24,8 @@ namespace XunfeiAI {
         Generator.addCode(`xunfeiFace.init(${appid}, ${apikey}, ${apisecret});`);
     }
 
-    //% block="OCR识别 图片Base64[IMAGE] 返回文本" blockType="reporter"
-    //% IMAGE.shadow="string" IMAGE.defl=""
+    //% block="科大讯飞【OCR识别】 图片Base64[IMAGE] 返回文本" blockType="reporter"
+    //% IMAGE.shadow="string" IMAGE.defl="4AAQSkZJRgABAQ"
     export function ocrRecognize(parameter: any, block: any) {
         let image = parameter.IMAGE.code;
         Generator.addInclude('xf_ocr_include', '#include <XunfeiOCRAPI.h>');
@@ -33,8 +33,8 @@ namespace XunfeiAI {
         Generator.addCode([`xunfeiOCR.recognize(${image}).text`, Generator.ORDER_UNARY_POSTFIX]);
     }
 
-    //% block="人脸识别 表情 图片Base64[IMAGE]" blockType="reporter"
-    //% IMAGE.shadow="string" IMAGE.defl=""
+    //% block="科大讯飞【表情识别】 图片Base64[IMAGE]" blockType="reporter"
+    //% IMAGE.shadow="string" IMAGE.defl="4AAQSkZJRgABAQ"
     export function faceDetectExpression(parameter: any, block: any) {
         let image = parameter.IMAGE.code;
         Generator.addInclude('xf_face_include', '#include <XunfeiFaceAPI.h>');
@@ -51,4 +51,35 @@ namespace XunfeiAI {
         Generator.addSetup('k10_img_proc_begin', 'processor.begin();');
         Generator.addCode([`processor.processImageToBase64(${path})`, Generator.ORDER_UNARY_POSTFIX]);
     }
+
+    //% block="中文[STR]的字符数" blockType="reporter"
+    //% STR.shadow="string" STR.defl="你好"
+    export function countUtf8Characters(parameter: any, block: any) {
+        let str = parameter.STR.code;
+        Generator.addInclude('count_utf8_include', '#include "countUtf8Characters.h"');
+        Generator.addCode([`countUtf8Characters(${str})`, Generator.ORDER_UNARY_POSTFIX]);
+    }
+
+    //% block="中文[STR]的第[INDEX]个字符" blockType="reporter"
+    //% STR.shadow="string" STR.defl="你好"
+    //% INDEX.shadow="number" INDEX.defl=1
+    export function getUtf8Char(parameter: any, block: any) {
+        let str = parameter.STR.code;
+        let index = parameter.INDEX.code;
+        Generator.addInclude('count_utf8_include', '#include "countUtf8Characters.h"');
+        Generator.addCode([`getUtf8CharPointer(${str}, ${index})`, Generator.ORDER_UNARY_POSTFIX]);
+    }
+
+    //% block="中文[STR]的[CHAR]的索引" blockType="reporter"
+    //% STR.shadow="string" STR.defl="你好"
+    //% CHAR.shadow="string" CHAR.defl="好"
+    export function getUtf8CharIndex(parameter: any, block: any) {
+        let str = parameter.STR.code;
+        let char = parameter.CHAR.code;
+        Generator.addInclude('count_utf8_include', '#include "countUtf8Characters.h"');
+        Generator.addCode([`getUtf8CharIndex(${str}, ${char})`, Generator.ORDER_UNARY_POSTFIX]);
+    }
+
+
+    
 }

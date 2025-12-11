@@ -1,11 +1,11 @@
 {
   "name": {
-    "zh-cn": "科大讯飞AI服务",
-    "en": "iFlytek AI Services"
+    "zh-cn": "智能博物项目功能库",
+    "en": "ZHINENFBOWU Project Function Library"
   },
   "description": {
-    "zh-cn": "科大讯飞OCR与人脸识别服务，含图像处理与通信",
-    "en": "iFlytek OCR and Face services with image processing and HTTP"
+    "zh-cn": "2026年智能博物项目功能库，包含K10实现任务所需要的扩展功能",
+    "en": "ZHINENFBOWU Project Function Library"
   },
   "author": "YangAI",
   "email": "support@yangai.local",
@@ -17,7 +17,7 @@
   "asset": {
     "arduinoC": {
       "dir": "arduinoC/",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "board": ["esp32s3bit"],
       "main": "main.ts"
     }

@@ -273,27 +273,6 @@ XunfeiFaceResult XunfeiFaceAPI::detect(const String& base64Image) {
                                 }
                             }
                             
-                            // 旧版 attribute 结构备用
-                            else if (faceObj["attribute"].is<JsonObject>()) {
-                                if (faceObj["attribute"]["emotion"]["description"].is<String>()) {
-                                    String emo = faceObj["attribute"]["emotion"]["description"];
-                                     // 简单的翻译
-                                    if (emo == "happy") emotion = "开心 😄";
-                                    else if (emo == "sad") emotion = "伤心 😢";
-                                    else if (emo == "neutral") emotion = "平静 😐";
-                                    else if (emo == "angry") emotion = "生气 😠";
-                                    else if (emo == "surprise") emotion = "惊讶 😲";
-                                    else if (emo == "fear") emotion = "恐惧 😱";
-                                    else if (emo == "disgust") emotion = "厌恶 🤢";
-                                    else emotion = emo;
-                                }
-                                if (faceObj["attribute"]["gender"]["description"].is<String>()) {
-                                    String gen = faceObj["attribute"]["gender"]["description"];
-                                    if (gen == "male") gender = "男 👦";
-                                    else if (gen == "female") gender = "女 👧";
-                                    else gender = gen;
-                                }
-                            }
                             
                             result.expression = emotion;
                             result.gender = gender;
