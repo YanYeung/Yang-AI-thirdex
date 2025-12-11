@@ -184,12 +184,12 @@ XunfeiFaceResult XunfeiFaceAPI::detect(const String& base64Image) {
         
         // 解析响应
         // 响应可能很大，包含 Base64 结果，我们只需要 header.code 和 payload.face_detect_result.text
-        JsonDocument doc; // ArduinoJson 7 推荐使用 JsonDocument
-        // 建议使用 deserializeJson(doc, response, DeserializationOption::Filter(filter))
-        // 为了简单，直接解析，如果内存不够再优化
         
-        DeserializationError error = deserializeJson(doc, response);
-        if (error) {
+        // 适配 ArduinoJson 5
+        DynamicJsonBuffer jsonBuffer;
+        JsonObject& doc = jsonBuffer.parseObject(response);
+        
+        if (!doc.success()) {
             Serial.println("❌ JSON 解析失败");
             result.message = "JSON解析失败";
         } else {
@@ -213,21 +213,21 @@ XunfeiFaceResult XunfeiFaceAPI::detect(const String& base64Image) {
 
                         // 解析内部 JSON
                         // {"face_1": {"attribute": {"gender": {"range": 1, "score": 0.99, "description": "male"}, "emotion": {"range": 1, "score": 0.9, "description": "happy"}}}}
-                        JsonDocument resDoc;
-                        deserializeJson(resDoc, resultJsonStr);
+                        DynamicJsonBuffer resBuffer;
+                        JsonObject& resDoc = resBuffer.parseObject(resultJsonStr);
                         
                         // 尝试适配不同的 JSON 结构
                         // 结构 1: {"face_1": ...}
                         // 结构 2: {"face_list": [...]}
                         
-                        JsonObject faceObj;
+                        JsonVariant faceObj;
                         bool faceFound = false;
 
                         if (resDoc["face_1"].is<JsonObject>()) {
                             faceObj = resDoc["face_1"];
                             faceFound = true;
                         } else if (resDoc["face_list"].is<JsonArray>()) {
-                            JsonArray faces = resDoc["face_list"];
+                            JsonArray& faces = resDoc["face_list"];
                             if (faces.size() > 0) {
                                 faceObj = faces[0];
                                 faceFound = true;
@@ -241,7 +241,7 @@ XunfeiFaceResult XunfeiFaceAPI::detect(const String& base64Image) {
 
                             // 解析属性
                             if (faceObj["property"].is<JsonObject>()) {
-                                JsonObject props = faceObj["property"];
+                                JsonObject& props = faceObj["property"];
                                 
                                 // 解析表情 (0:不笑, 1:微笑, 2:大笑) - 注意：不同版本API定义可能不同，这里假设是新版
                                 // 实际观察到的值: 3? (需要查阅文档或推测)
@@ -276,7 +276,7 @@ XunfeiFaceResult XunfeiFaceAPI::detect(const String& base64Image) {
                             // 旧版 attribute 结构备用
                             else if (faceObj["attribute"].is<JsonObject>()) {
                                 if (faceObj["attribute"]["emotion"]["description"].is<String>()) {
-                                    String emo = faceObj["attribute"]["emotion"]["description"].as<String>();
+                                    String emo = faceObj["attribute"]["emotion"]["description"];
                                      // 简单的翻译
                                     if (emo == "happy") emotion = "开心 😄";
                                     else if (emo == "sad") emotion = "伤心 😢";
@@ -288,7 +288,7 @@ XunfeiFaceResult XunfeiFaceAPI::detect(const String& base64Image) {
                                     else emotion = emo;
                                 }
                                 if (faceObj["attribute"]["gender"]["description"].is<String>()) {
-                                    String gen = faceObj["attribute"]["gender"]["description"].as<String>();
+                                    String gen = faceObj["attribute"]["gender"]["description"];
                                     if (gen == "male") gender = "男 👦";
                                     else if (gen == "female") gender = "女 👧";
                                     else gender = gen;
@@ -309,7 +309,7 @@ XunfeiFaceResult XunfeiFaceAPI::detect(const String& base64Image) {
                     result.message = "无结果数据";
                 }
             } else {
-                result.message = doc["header"]["message"].as<String>();
+                result.message = doc["header"]["message"].as<const char*>();
                 Serial.printf("❌ API 错误: %s\n", result.message.c_str());
             }
         }
