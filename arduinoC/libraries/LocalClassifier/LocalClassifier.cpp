@@ -1,0 +1,170 @@
+#include "LocalClassifier.h"
+
+LocalClassifier::LocalClassifier(String baseUrl) {
+    if (baseUrl.endsWith("/")) {
+        _baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+    } else {
+        _baseUrl = baseUrl;
+    }
+}
+
+LocalClassifier::~LocalClassifier() {}
+
+void LocalClassifier::setBaseUrl(String baseUrl) {
+    if (baseUrl.endsWith("/")) {
+        _baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+    } else {
+        _baseUrl = baseUrl;
+    }
+}
+
+String LocalClassifier::getLastError() {
+    return _lastError;
+}
+
+// ==================== Private Helpers ====================
+
+String LocalClassifier::sendJsonRequest(String method, String endpoint, String payload) {
+    if (WiFi.status() != WL_CONNECTED) {
+        _lastError = "WiFi not connected";
+        return "";
+    }
+
+    HTTPClient http;
+    WiFiClient client;
+    
+    String url = _baseUrl + endpoint;
+    
+    if (!http.begin(client, url)) {
+        _lastError = "Connection failed";
+        return "";
+    }
+
+    http.addHeader("Content-Type", "application/json");
+    // Increase timeout to 10 seconds for image upload
+    http.setTimeout(10000); 
+
+    int httpCode = 0;
+    if (method == "GET") {
+        httpCode = http.GET();
+    } else if (method == "POST") {
+        httpCode = http.POST(payload);
+    } else if (method == "PUT") {
+        httpCode = http.PUT(payload);
+    } else if (method == "DELETE") {
+        httpCode = http.sendRequest("DELETE", payload);
+    } else {
+        _lastError = "Invalid method";
+        http.end();
+        return "";
+    }
+
+    String response = "";
+    if (httpCode > 0) {
+        // Only read response if content length is reasonable or we expect a response
+        // Note: getString() can fail allocation if response is too large
+        response = http.getString();
+        
+        if (httpCode >= 200 && httpCode < 300) {
+            _lastError = ""; 
+        } else {
+            _lastError = "HTTP " + String(httpCode) + ": " + response;
+            if (httpCode >= 400) response = ""; 
+        }
+    } else {
+        _lastError = "HTTP Error: " + http.errorToString(httpCode);
+    }
+
+    http.end();
+    return response;
+}
+
+// ==================== 1. Text Classification API ====================
+
+String LocalClassifier::classifyText(String text) {
+    // Endpoint: POST /api/classify
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject& root = jsonBuffer.createObject();
+    root["text"] = text;
+
+    String payload;
+    root.printTo(payload);
+
+    return sendJsonRequest("POST", "/api/classify", payload);
+}
+
+// ==================== 2. Image Classification API ====================
+
+String LocalClassifier::classifyImageBase64(String base64Image) {
+    // Endpoint: POST /api/image/classify/base64
+    
+    // Manual JSON construction to save memory (avoiding ArduinoJson buffer)
+    // Payload: {"image": "..."}
+    String payload = "{\"image\":\"";
+    payload += base64Image;
+    payload += "\"}";
+    
+    // Debug: Check payload length (don't print the whole thing)
+    Serial.println("[LocalClassifier] Constructed payload. Length: " + String(payload.length()));
+    
+    // The base64 string can be very long, so we need to be careful with memory.
+    // However, ArduinoJson v5 buffers everything.
+    // If memory is an issue, we might need to construct the JSON manually, 
+    // but let's stick to the library first as it's cleaner.
+    // If the image is large, this might fail on ESP32 due to RAM.
+    // But the user asked for this implementation.
+
+    String response = sendJsonRequest("POST", "/api/image/classify/base64", payload);
+    
+    // Debug: Check response
+    if (response.length() == 0) {
+        Serial.println("[LocalClassifier] Error: Empty response.");
+        Serial.println("[LocalClassifier] Last Error: " + getLastError());
+        return "";
+    }
+
+    String result = getJsonValue(response, "class");
+    if (result.length() == 0) {
+        Serial.println("[LocalClassifier] Warning: Could not extract 'class'. Raw response:");
+        Serial.println(response);
+        // Fallback: return the raw response so the user can see what's wrong
+        return response; 
+    }
+    return result;
+}
+
+// ==================== 3. General ====================
+
+bool LocalClassifier::healthCheck() {
+    String res = sendJsonRequest("GET", "/health");
+    if (res.length() > 0 && _lastError == "") {
+        return true;
+    }
+    return false;
+}
+
+String LocalClassifier::getJsonValue(String json, String key) {
+    if (json.length() == 0) return "";
+    
+    // Use string manipulation instead of ArduinoJson to save memory and avoid parsing errors
+    // Look for "key":"value" or "key" : "value"
+    String keyPattern = "\"" + key + "\"";
+    int keyIdx = json.indexOf(keyPattern);
+    if (keyIdx == -1) return "";
+
+    // Find the colon after the key
+    int colonIdx = json.indexOf(':', keyIdx + keyPattern.length());
+    if (colonIdx == -1) return "";
+
+    // Find the start of the value (assuming it's a string starting with ")
+    int valStart = json.indexOf('"', colonIdx + 1);
+    if (valStart == -1) return "";
+    
+    // Find the end of the value
+    // Note: This simple parser doesn't handle escaped quotes within the string, 
+    // but for simple class names it should be sufficient.
+    int valEnd = json.indexOf('"', valStart + 1);
+    if (valEnd == -1) return "";
+    
+    return json.substring(valStart + 1, valEnd);
+}

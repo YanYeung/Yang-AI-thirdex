@@ -79,7 +79,50 @@ namespace XunfeiAI {
         Generator.addInclude('count_utf8_include', '#include "countUtf8Characters.h"');
         Generator.addCode([`getUtf8CharIndex(${str}, ${char})`, Generator.ORDER_UNARY_POSTFIX]);
     }
-
-
     
+    
+    //% block="初始化本地分类器 地址[URL]" blockType="command"
+    //% URL.shadow="string" URL.defl="http://192.168.1.100:8000"
+    export function initClassifier(parameter: any, block: any) {
+        let url = parameter.URL.code;
+        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
+        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
+        Generator.addSetup('local_classifier_init', `classifier.setBaseUrl(${url});`);
+    }
+
+    //% block="文本分类[TEXT]结果" blockType="reporter"
+    //% TEXT.shadow="string" TEXT.defl="hello"
+    export function classifyText(parameter: any, block: any) {
+        let text = parameter.TEXT.code;
+        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
+        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
+        Generator.addCode([`classifier.classifyText(${text})`, Generator.ORDER_UNARY_POSTFIX]);
+    }
+    
+    //% block="图像分类 Base64[IMAGE]结果" blockType="reporter"
+    //% IMAGE.shadow="string" IMAGE.defl="4AAQSkZJRgABAQ"
+    export function classifyImageBase64(parameter: any, block: any) {
+        let image = parameter.IMAGE.code;
+        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
+        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
+        Generator.addCode([`classifier.classifyImageBase64(${image})`, Generator.ORDER_UNARY_POSTFIX]);
+    }
+
+    //% block="解析JSON[JSON] 获取键[KEY]的值" blockType="reporter"
+    //% JSON.shadow="string" JSON.defl="{}"
+    //% KEY.shadow="string" KEY.defl="label"
+    export function getJsonValue(parameter: any, block: any) {
+        let json = parameter.JSON.code;
+        let key = parameter.KEY.code;
+        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
+        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
+        Generator.addCode([`classifier.getJsonValue(${json}, ${key})`, Generator.ORDER_UNARY_POSTFIX]);
+    }
+
+    //% block="获取最后错误信息" blockType="reporter"
+    export function getLastError(parameter: any, block: any) {
+        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
+        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
+        Generator.addCode([`classifier.getLastError()`, Generator.ORDER_UNARY_POSTFIX]);
+    }
 }
