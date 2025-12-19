@@ -90,7 +90,17 @@ String LocalClassifier::classifyText(String text) {
     String payload;
     root.printTo(payload);
 
-    return sendJsonRequest("POST", "/api/classify", payload);
+    String response = sendJsonRequest("POST", "/api/classify", payload);
+    
+    // Parse the result to return only the label
+    if (response.length() > 0) {
+        String label = getJsonValue(response, "category");
+        if (label.length() > 0) {
+            return label;
+        }
+    }
+    
+    return response;
 }
 
 // ==================== 2. Image Classification API ====================

@@ -37,7 +37,7 @@ public:
     /**
      * @brief Classify text
      * @param text Text to classify
-     * @return JSON String with classification result, or empty on failure
+     * @return Classification label (e.g. "greeting"), or error/JSON on failure
      */
     String classifyText(String text);
 
