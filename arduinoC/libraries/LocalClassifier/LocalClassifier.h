@@ -50,7 +50,30 @@ public:
      */
     String classifyImageRaw(int quality = 30);
 
-    // ==================== 3. General ====================
+    // ==================== 3. Baidu AI Proxy API (Raw Binary) ====================
+
+    /**
+     * @brief Perform Baidu OCR using proxy (Raw Binary)
+     * @param quality JPEG quality (default 30)
+     * @return JSON String with OCR result
+     */
+    String baiduOcrRaw(int quality = 30);
+
+    /**
+     * @brief Perform Baidu Face Search using proxy (Raw Binary)
+     * @param quality JPEG quality (default 30)
+     * @return JSON String with search result
+     */
+    String baiduFaceSearchRaw(int quality = 30);
+
+    /**
+     * @brief Perform Baidu Face Detection using proxy (Raw Binary)
+     * @param quality JPEG quality (default 30)
+     * @return JSON String with detection result
+     */
+    String baiduFaceDetectRaw(int quality = 30);
+
+    // ==================== 4. General ====================
 
     /**
      * @brief Check server health

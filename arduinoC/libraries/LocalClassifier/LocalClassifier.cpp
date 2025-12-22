@@ -124,7 +124,29 @@ String LocalClassifier::classifyImageRaw(int quality) {
     
     // If we got a response from the server, it should be JSON
     _lastError = "";
-    // Parse the result to return only the category label
+    return response;
+}
+
+// ==================== 3. Baidu AI Proxy API (Raw Binary) ====================
+
+String LocalClassifier::baiduOcrRaw(int quality) {
+    // Endpoint: POST /api/baidu/ocr/raw
+    String url = _baseUrl + "/api/baidu/ocr/raw";
+    return uploadCameraFrameOptimized(url, quality);
+}
+
+String LocalClassifier::baiduFaceSearchRaw(int quality) {
+    // Endpoint: POST /api/baidu/face/search/raw
+    String url = _baseUrl + "/api/baidu/face/search/raw";
+    return uploadCameraFrameOptimized(url, quality);
+}
+
+String LocalClassifier::baiduFaceDetectRaw(int quality) {
+    // Endpoint: POST /api/baidu/face/detect/raw
+    String url = _baseUrl + "/api/baidu/face/detect/raw";
+    String response = uploadCameraFrameOptimized(url, quality);
+    
+    // 解析结果，仅返回类别标签
     if (response.length() > 0) {
         String label = getJsonValue(response, "class");
         if (label.length() > 0) {
@@ -134,7 +156,6 @@ String LocalClassifier::classifyImageRaw(int quality) {
     
     return response;
 }
-
 // ==================== 3. General ====================
 
 bool LocalClassifier::healthCheck() {

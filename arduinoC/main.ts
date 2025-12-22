@@ -101,11 +101,19 @@ namespace XunfeiAI {
     
     //% block="图像分类的结果,图片质量[QUALITY]" blockType="reporter"
     //% QUALITY.shadow="number" QUALITY.defl=50
-    export function classifyImageBase64(parameter: any, block: any) {
+    export function classifyImageRaw(parameter: any, block: any) {
         Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
         Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
         let quality = parameter.QUALITY.code;
         Generator.addCode([`classifier.classifyImageRaw(${quality})`, Generator.ORDER_UNARY_POSTFIX]);
+    }
+    //% block="百度OCR,图片质量[QUALITY]" blockType="reporter"
+    //% QUALITY.shadow="number" QUALITY.defl=50
+    export function baiduOcrRaw(parameter: any, block: any) {
+        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
+        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
+        let quality = parameter.QUALITY.code;
+        Generator.addCode([`classifier.baiduOcrRaw(${quality})`, Generator.ORDER_UNARY_POSTFIX]);
     }
 
     //% block="解析JSON[JSON] 获取键[KEY]的值" blockType="reporter"
