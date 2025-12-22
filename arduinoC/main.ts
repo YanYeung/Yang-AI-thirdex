@@ -99,13 +99,13 @@ namespace XunfeiAI {
         Generator.addCode([`classifier.classifyText(${text})`, Generator.ORDER_UNARY_POSTFIX]);
     }
     
-    //% block="图像分类 Base64[IMAGE]结果" blockType="reporter"
-    //% IMAGE.shadow="string" IMAGE.defl="4AAQSkZJRgABAQ"
+    //% block="图像分类的结果,图片质量[QUALITY]" blockType="reporter"
+    //% QUALITY.shadow="number" QUALITY.defl=50
     export function classifyImageBase64(parameter: any, block: any) {
-        let image = parameter.IMAGE.code;
         Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
         Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
-        Generator.addCode([`classifier.classifyImageBase64(${image})`, Generator.ORDER_UNARY_POSTFIX]);
+        let quality = parameter.QUALITY.code;
+        Generator.addCode([`classifier.classifyImageRaw(${quality})`, Generator.ORDER_UNARY_POSTFIX]);
     }
 
     //% block="解析JSON[JSON] 获取键[KEY]的值" blockType="reporter"
@@ -177,4 +177,6 @@ namespace XunfeiAI {
         Generator.addObject('baidu_face_obj', 'BaiduFaceAI', 'baiduFace;');
         Generator.addCode([`baiduFace.analyzeEmotion(${image})`, Generator.ORDER_UNARY_POSTFIX]);
     }
+
+ 
 }

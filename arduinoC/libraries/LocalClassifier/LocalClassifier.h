@@ -44,11 +44,11 @@ public:
     // ==================== 2. Image Classification API ====================
 
     /**
-     * @brief Classify an image from Base64 string
-     * @param base64Image Base64 encoded image string
-     * @return JSON String with classification result
+     * @brief Classify an image from Camera directly using optimized binary upload
+     * @param quality JPEG quality (10-63), default 30
+     * @return JSON String with classification result or error message
      */
-    String classifyImageBase64(String base64Image);
+    String classifyImageRaw(int quality = 30);
 
     // ==================== 3. General ====================
 

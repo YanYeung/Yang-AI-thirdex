@@ -103,44 +103,36 @@ String LocalClassifier::classifyText(String text) {
     return response;
 }
 
+#include "OptimizedCameraUpload.h"
+
 // ==================== 2. Image Classification API ====================
 
-String LocalClassifier::classifyImageBase64(String base64Image) {
-    // Endpoint: POST /api/image/classify/base64
+String LocalClassifier::classifyImageRaw(int quality) {
+    // Construct the full URL for the raw image classification endpoint
+    // Endpoint: POST /api/image/classify/raw
+    String url = _baseUrl + "/api/image/classify/raw";
     
-    // Manual JSON construction to save memory (avoiding ArduinoJson buffer)
-    // Payload: {"image": "..."}
-    String payload = "{\"image\":\"";
-    payload += base64Image;
-    payload += "\"}";
+    // Reuse the optimized upload logic directly
+    // This handles: queue fetch -> JPEG compression -> binary POST -> cleanup
+    String response = uploadCameraFrameOptimized(url, quality);
     
-    // Debug: Check payload length (don't print the whole thing)
-    Serial.println("[LocalClassifier] Constructed payload. Length: " + String(payload.length()));
-    
-    // The base64 string can be very long, so we need to be careful with memory.
-    // However, ArduinoJson v5 buffers everything.
-    // If memory is an issue, we might need to construct the JSON manually, 
-    // but let's stick to the library first as it's cleaner.
-    // If the image is large, this might fail on ESP32 due to RAM.
-    // But the user asked for this implementation.
-
-    String response = sendJsonRequest("POST", "/api/image/classify/base64", payload);
-    
-    // Debug: Check response
-    if (response.length() == 0) {
-        Serial.println("[LocalClassifier] Error: Empty response.");
-        Serial.println("[LocalClassifier] Last Error: " + getLastError());
-        return "";
+    // Check if the response indicates a local error from the upload function
+    if (response.startsWith("Error:")) {
+        _lastError = response;
+        return ""; // Return empty string on transport/hardware error
     }
-
-    String result = getJsonValue(response, "class");
-    if (result.length() == 0) {
-        Serial.println("[LocalClassifier] Warning: Could not extract 'class'. Raw response:");
-        Serial.println(response);
-        // Fallback: return the raw response so the user can see what's wrong
-        return response; 
+    
+    // If we got a response from the server, it should be JSON
+    _lastError = "";
+    // Parse the result to return only the category label
+    if (response.length() > 0) {
+        String label = getJsonValue(response, "class");
+        if (label.length() > 0) {
+            return label;
+        }
     }
-    return result;
+    
+    return response;
 }
 
 // ==================== 3. General ====================
