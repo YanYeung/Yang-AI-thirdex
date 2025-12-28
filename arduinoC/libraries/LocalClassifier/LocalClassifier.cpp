@@ -124,6 +124,13 @@ String LocalClassifier::classifyImageRaw(int quality) {
     
     // If we got a response from the server, it should be JSON
     _lastError = "";
+    if (response.length() > 0) {
+        // Parse the result to return only the label
+        String label = getJsonValue(response, "category");
+        if (label.length() > 0) {
+            return label;
+        }
+    }
     return response;
 }
 
