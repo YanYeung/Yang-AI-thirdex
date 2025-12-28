@@ -4,13 +4,19 @@
 // ==================== Settings ====================
 const char* ssid = "YOUR_SSID";
 const char* password = "YOUR_PASSWORD";
-const char* serverUrl = "http://192.168.1.100:8000"; // Replace with your server IP
+// Option 1: Full URL
+// const char* serverUrl = "http://192.168.1.100:8000"; 
+// LocalClassifier classifier(serverUrl);
 
-LocalClassifier classifier(serverUrl);
+// Option 2: Default constructor + setBaseUrl with IP and Port
+LocalClassifier classifier;
 
 void setup() {
   Serial.begin(115200);
   delay(1000);
+  
+  // Set Server IP and Port
+  classifier.setBaseUrl("192.168.1.100", 8000);
   
   // 1. Connect to WiFi
   Serial.print("Connecting to WiFi");

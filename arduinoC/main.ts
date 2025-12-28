@@ -32,13 +32,15 @@ namespace EdgeCoreAi {
     }
     
     
-    //% block="初始化本地分类器 地址[URL]" blockType="command"
-    //% URL.shadow="string" URL.defl="http://192.168.1.100:8000"
+    //% block="初始化本地分类器 服务器IP[IP] 端口[PORT]" blockType="command"
+    //% IP.shadow="string" IP.defl="192.168.1.100"
+    //% PORT.shadow="number" PORT.defl=8000
     export function initClassifier(parameter: any, block: any) {
-        let url = parameter.URL.code;
+        let ip = parameter.IP.code;
+        let port = parameter.PORT.code;
         Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
         Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
-        Generator.addSetup('local_classifier_init', `classifier.setBaseUrl(${url});`);
+        Generator.addSetup('local_classifier_init', `classifier.setBaseUrl(${ip},${port});`);
     }
 
     //% block="文本分类[TEXT]结果" blockType="reporter"

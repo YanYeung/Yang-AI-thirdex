@@ -18,6 +18,10 @@ void LocalClassifier::setBaseUrl(String baseUrl) {
     }
 }
 
+void LocalClassifier::setBaseUrl(String ip, int port) {
+    _baseUrl = "http://" + ip + ":" + String(port);
+}
+
 String LocalClassifier::getLastError() {
     return _lastError;
 }

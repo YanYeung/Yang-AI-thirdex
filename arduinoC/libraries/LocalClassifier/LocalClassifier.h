@@ -27,6 +27,13 @@ public:
     void setBaseUrl(String baseUrl);
 
     /**
+     * @brief Set the Base URL using IP and Port
+     * @param ip Server IP address
+     * @param port Server port
+     */
+    void setBaseUrl(String ip, int port);
+
+    /**
      * @brief Get the last error message
      * @return Error string
      */
