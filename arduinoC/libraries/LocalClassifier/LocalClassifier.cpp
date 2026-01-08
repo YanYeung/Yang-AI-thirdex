@@ -95,7 +95,6 @@ String LocalClassifier::classifyText(String text) {
     root.printTo(payload);
 
     String response = sendJsonRequest("POST", "/api/classify", payload);
-    
     // Parse the result to return only the label
     if (response.length() > 0) {
         String label = getJsonValue(response, "category");
@@ -107,7 +106,7 @@ String LocalClassifier::classifyText(String text) {
     return response;
 }
 
-#include "OptimizedCameraUpload.h"
+#include <OptimizedCameraUpload.h>
 
 // ==================== 2. Image Classification API ====================
 
@@ -155,16 +154,30 @@ String LocalClassifier::baiduFaceSearchRaw(int quality) {
 String LocalClassifier::baiduFaceDetectRaw(int quality) {
     // Endpoint: POST /api/baidu/face/detect/raw
     String url = _baseUrl + "/api/baidu/face/detect/raw";
+    return uploadCameraFrameOptimized(url, quality);
+}
+
+// ==================== 4. Local OCR API (Raw Binary) ====================
+
+String LocalClassifier::localOcrRaw(int quality, int rotate_angle) {
+    // Endpoint: POST /ocr/predict/raw?rotate_angle=...
+    String url = _baseUrl + "/ocr/predict/raw?rotate_angle=" + String(rotate_angle);
     String response = uploadCameraFrameOptimized(url, quality);
-    
-    // 解析结果，仅返回类别标签
-    if (response.length() > 0) {
-        String label = getJsonValue(response, "class");
-        if (label.length() > 0) {
-            return label;
-        }
+
+    // Check if the response indicates a local error from the upload function
+    if (response.startsWith("Error:")) {
+        _lastError = response;
+        return "";
     }
     
+    _lastError = "";
+    if (response.length() > 0) {
+        // Parse the result to return only the text content
+        String text = getJsonValue(response, "text");
+        if (text.length() > 0) {
+            return text;
+        }
+    }
     return response;
 }
 // ==================== 3. General ====================

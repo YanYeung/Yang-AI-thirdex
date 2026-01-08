@@ -11,13 +11,13 @@
   "email": "support@yangai.local",
   "license": "MIT",
   "isBoard": false,
-  "id": "yang_ai_thirdex",
+  "id": "ClassifierApp",
   "platform": ["win", "mac", "web"],
   "version": "0.1.0",
   "asset": {
     "arduinoC": {
       "dir": "arduinoC/",
-      "version": "0.2.0",
+      "version": "0.1.0",
       "board": ["esp32s3bit"],
       "main": "main.ts"
     }

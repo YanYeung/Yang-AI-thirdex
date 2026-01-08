@@ -80,7 +80,17 @@ public:
      */
     String baiduFaceDetectRaw(int quality = 30);
 
-    // ==================== 4. General ====================
+    // ==================== 4. Local OCR API (Raw Binary) ====================
+
+    /**
+     * @brief Perform Local OCR (Raw Binary)
+     * @param quality JPEG quality (default 30)
+     * @param rotate_angle Rotation angle (0, 90, 180, 270), default 0
+     * @return JSON String with OCR result {"text": "..."}
+     */
+    String localOcrRaw(int quality = 30, int rotate_angle = 0);
+
+    // ==================== 5. General ====================
 
     /**
      * @brief Check server health

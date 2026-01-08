@@ -1,7 +1,79 @@
-//% color="#993300" iconWidth=50 iconHeight=40
-namespace EdgeCoreAi {
+enum OCR {
+    //% block="本地OCR"
+    localOcr,
+    //% block="百度OCR"
+    baiduOcr,
+}
 
+//% color="#357DFF" iconWidth=50 iconHeight=40
+namespace ClassifierApp {
+//% block="本地分类推理" blockType="tag"
+    export function localClassifier() {}
 
+    
+    //% block="初始化本地分类器 地址[URL]" blockType="command"
+    //% URL.shadow="string" URL.defl="http://192.168.1.100:8000"
+    export function initClassifier(parameter: any, block: any) {
+        let url = parameter.URL.code;
+        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
+        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
+        Generator.addSetup('local_classifier_init', `classifier.setBaseUrl(${url});`);
+    }
+
+    //% block="文本分类[TEXT]结果" blockType="reporter"
+    //% TEXT.shadow="string" TEXT.defl="hello"
+    export function classifyText(parameter: any, block: any) {
+        let text = parameter.TEXT.code;
+        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
+        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
+        Generator.addCode([`classifier.classifyText(${text})`, Generator.ORDER_UNARY_POSTFIX]);
+    }
+    
+    //% block="图像分类的结果,图片质量[QUALITY]" blockType="reporter"
+    //% QUALITY.shadow="number" QUALITY.defl=50
+    export function classifyImageRaw(parameter: any, block: any) {
+        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
+        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
+        let quality = parameter.QUALITY.code;
+        Generator.addCode([`classifier.classifyImageRaw(${quality})`, Generator.ORDER_UNARY_POSTFIX]);
+    }
+    //% block="使用[OCR]识别文字,图片质量[QUALITY]" blockType="reporter"
+    //% OCR.shadow="dropdownRound" OCR.options="OCR" OCR.defl="本地OCR"
+    //% QUALITY.shadow="number" QUALITY.defl=50
+    export function baiduOcrRaw(parameter: any, block: any) {
+        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
+        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
+        let quality = parameter.QUALITY.code;
+        let ocr = parameter.OCR.code;
+        if (ocr == "localOcr") {
+            Generator.addCode([`classifier.localOcrRaw(${quality},0)`, Generator.ORDER_UNARY_POSTFIX]);
+        } else {
+            Generator.addCode([`classifier.baiduOcrRaw(${quality})`, Generator.ORDER_UNARY_POSTFIX]);
+        }
+    }
+
+        //% block="本地OCR,图片质量[QUALITY]" blockType="reporter"
+    //% QUALITY.shadow="number" QUALITY.defl=50
+    export function localOcrRaw(parameter: any, block: any) {
+        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
+        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
+        let quality = parameter.QUALITY.code;
+        Generator.addCode([`classifier.localOcrRaw(${quality},0)`, Generator.ORDER_UNARY_POSTFIX]);
+    }
+
+    //% block="解析JSON[JSON] 获取键[KEY]的值" blockType="reporter"
+    //% JSON.shadow="string" JSON.defl="{}"
+    //% KEY.shadow="string" KEY.defl="label"
+    export function getJsonValue(parameter: any, block: any) {
+        let json = parameter.JSON.code;
+        let key = parameter.KEY.code;
+        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
+        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
+        Generator.addCode([`classifier.getJsonValue(${json}, ${key})`, Generator.ORDER_UNARY_POSTFIX]);
+    }
+
+    //% block="中文字符处理" blockType="tag"
+    export function Characterstag() {}
 
     //% block="中文[STR]的字符数" blockType="reporter"
     //% STR.shadow="string" STR.defl="你好"
@@ -31,42 +103,4 @@ namespace EdgeCoreAi {
         Generator.addCode([`getUtf8CharIndex(${str}, ${char})`, Generator.ORDER_UNARY_POSTFIX]);
     }
     
-    
-    //% block="初始化本地分类器 服务器IP[IP] 端口[PORT]" blockType="command"
-    //% IP.shadow="string" IP.defl="192.168.1.100"
-    //% PORT.shadow="number" PORT.defl=8000
-    export function initClassifier(parameter: any, block: any) {
-        let ip = parameter.IP.code;
-        let port = parameter.PORT.code;
-        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
-        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
-        Generator.addSetup('local_classifier_init', `classifier.setBaseUrl(${ip},${port});`);
-    }
-
-    //% block="文本分类[TEXT]结果" blockType="reporter"
-    //% TEXT.shadow="string" TEXT.defl="hello"
-    export function classifyText(parameter: any, block: any) {
-        let text = parameter.TEXT.code;
-        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
-        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
-        Generator.addCode([`classifier.classifyText(${text})`, Generator.ORDER_UNARY_POSTFIX]);
-    }
-    
-    //% block="图像分类的结果,图片质量[QUALITY]" blockType="reporter"
-    //% QUALITY.shadow="number" QUALITY.defl=50
-    export function classifyImageRaw(parameter: any, block: any) {
-        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
-        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
-        let quality = parameter.QUALITY.code;
-        Generator.addCode([`classifier.classifyImageRaw(${quality})`, Generator.ORDER_UNARY_POSTFIX]);
-    }
-    //% block="百度OCR,图片质量[QUALITY]" blockType="reporter"
-    //% QUALITY.shadow="number" QUALITY.defl=50
-    export function baiduOcrRaw(parameter: any, block: any) {
-        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
-        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
-        let quality = parameter.QUALITY.code;
-        Generator.addCode([`classifier.baiduOcrRaw(${quality})`, Generator.ORDER_UNARY_POSTFIX]);
-    }
- 
 }

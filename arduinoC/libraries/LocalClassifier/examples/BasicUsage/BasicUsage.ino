@@ -70,6 +70,13 @@ void setup() {
   String imgLabel = classifier.getJsonValue(imgResult, "class");
   Serial.println("Image Class: " + imgLabel);
 
+  // ==================== Local OCR Demo ====================
+  Serial.println("\n--- Local OCR Demo (Camera Raw) ---");
+  Serial.println("Capturing and Reading Text...");
+  // Rotate 0 degrees, quality 30
+  String ocrText = classifier.localOcrRaw(30, 0); 
+  Serial.println("OCR Result: " + ocrText);
+
   Serial.println("\nDemo Complete.");
 }
 
