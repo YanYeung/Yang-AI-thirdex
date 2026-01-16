@@ -12,16 +12,17 @@ namespace ClassifierApp {
 
     
     //% block="初始化本地分类器 地址[URL]" blockType="command"
-    //% URL.shadow="string" URL.defl="http://192.168.1.100:8000"
+    //% URL.shadow="normal" URL.defl="192.168.1.100"
     export function initClassifier(parameter: any, block: any) {
         let url = parameter.URL.code;
+        url = "http://" + url + ":8000";
         Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
         Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
-        Generator.addSetup('local_classifier_init', `classifier.setBaseUrl(${url});`);
+        Generator.addSetup('local_classifier_init', `classifier.setBaseUrl("${url}");`);
     }
 
-    //% block="文本分类[TEXT]结果" blockType="reporter"
-    //% TEXT.shadow="string" TEXT.defl="hello"
+    //% block="对[TEXT]进行文本分类" blockType="reporter"
+    //% TEXT.shadow="string" TEXT.defl="文本内容"
     export function classifyText(parameter: any, block: any) {
         let text = parameter.TEXT.code;
         Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
@@ -29,7 +30,7 @@ namespace ClassifierApp {
         Generator.addCode([`classifier.classifyText(${text})`, Generator.ORDER_UNARY_POSTFIX]);
     }
     
-    //% block="图像分类的结果,图片质量[QUALITY]" blockType="reporter"
+    //% block="拍照并进行图像分类,图片质量[QUALITY]" blockType="reporter"
     //% QUALITY.shadow="number" QUALITY.defl=50
     export function classifyImageRaw(parameter: any, block: any) {
         Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
@@ -50,26 +51,6 @@ namespace ClassifierApp {
         } else {
             Generator.addCode([`classifier.baiduOcrRaw(${quality})`, Generator.ORDER_UNARY_POSTFIX]);
         }
-    }
-
-        //% block="本地OCR,图片质量[QUALITY]" blockType="reporter"
-    //% QUALITY.shadow="number" QUALITY.defl=50
-    export function localOcrRaw(parameter: any, block: any) {
-        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
-        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
-        let quality = parameter.QUALITY.code;
-        Generator.addCode([`classifier.localOcrRaw(${quality},0)`, Generator.ORDER_UNARY_POSTFIX]);
-    }
-
-    //% block="解析JSON[JSON] 获取键[KEY]的值" blockType="reporter"
-    //% JSON.shadow="string" JSON.defl="{}"
-    //% KEY.shadow="string" KEY.defl="label"
-    export function getJsonValue(parameter: any, block: any) {
-        let json = parameter.JSON.code;
-        let key = parameter.KEY.code;
-        Generator.addInclude('local_classifier_include', '#include <LocalClassifier.h>');
-        Generator.addObject('local_classifier_obj', 'LocalClassifier', 'classifier;');
-        Generator.addCode([`classifier.getJsonValue(${json}, ${key})`, Generator.ORDER_UNARY_POSTFIX]);
     }
 
     //% block="中文字符处理" blockType="tag"
